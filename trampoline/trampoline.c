@@ -402,6 +402,12 @@ int main(int argc, char *argv[])
     mount("sysfs", "/sys", "sysfs", 0, NULL);
     mount("pstore", "/sys/fs/pstore", "pstore", 0, NULL);
 
+#if MR_USE_DEBUGFS_MOUNT
+    // Mount the debugfs kernel sysfs
+    mkdir("/sys/kernel/debug", 0755);
+    mount("debugfs", "/sys/kernel/debug", "debugfs", 0, NULL);
+#endif
+
     klog_init();
     // output all messages to dmesg,
     // but it is possible to filter out INFO messages
@@ -437,6 +443,10 @@ run_main_init:
     if(access(KEEP_REALDATA, F_OK) < 0) {
         umount("/dev");
     }
+
+#if MR_USE_DEBUGFS_MOUNT
+    umount("/sys/kernel/debug");
+#endif
 
     umount("/proc");
     umount("/sys/fs/pstore");
