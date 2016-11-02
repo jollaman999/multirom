@@ -264,7 +264,29 @@ int multirom(const char *rom_to_boot)
 
     if(rom_to_boot != NULL)
     {
-        struct multirom_rom *rom = multirom_get_rom(&s, rom_to_boot, NULL);
+        struct multirom_rom *rom = NULL;
+
+        // Parse rom_to_boot should be: Name_of_ROM++uuid=xxxx  (the '++uuid=xxxx' is optional but needed for external ROMs)
+        char * uuid_ptr = strstr(rom_to_boot, "++uuid=");
+        if(uuid_ptr == NULL)
+        {
+            rom = multirom_get_rom(&s, rom_to_boot, NULL);
+        }
+        else
+        {
+            char name[MAX_ROM_NAME_LEN + 1];
+            char part_uuid[36+4+1];
+
+            strncpy(name, rom_to_boot, uuid_ptr - rom_to_boot);
+            name[uuid_ptr - rom_to_boot] = 0;
+
+            strcpy(part_uuid, uuid_ptr + sizeof("++uuid=") - 1);
+
+            multirom_update_and_scan_for_external_roms(&s, part_uuid);
+
+            rom = multirom_get_rom(&s, name, part_uuid);
+        }
+
         if(rom)
         {
             // Two possible scenarios: this ROM has kexec-hardboot and target
