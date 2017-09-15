@@ -143,8 +143,11 @@ static void disable_restorecon_recursive(void)
 
                 while(fgets(line, sizeof(line), f_in))
                 {
-                    if(strstr(line, "restorecon_recursive ") && (strstr(line, "/data") || strstr(line, "/system") || strstr(line, "/cache") || strstr(line, "/mnt")))
-                        fputc('#', f_out);
+                    if (strstr(line, "restorecon_recursive ") || (strstr(line, "restorecon ") && strstr(line, "--recursive"))) {
+                        if (strstr(line, "/data") || strstr(line, "/system") || strstr(line, "/cache") || strstr(line, "/mnt")) {
+                            fputc('#', f_out);
+                        }
+                    }
                     fputs(line, f_out);
                 }
 
@@ -675,6 +678,8 @@ err:
 
 void rom_quirks_on_initrd_finalized(void)
 {
+    int file_contexts_injected = 0;
+
     // walk over all _regular_ files in /
     DIR *d = opendir("/");
     if(d)
@@ -697,8 +702,14 @@ void rom_quirks_on_initrd_finalized(void)
             // Android N is using the binary format of file_contexts, try to inject it
             // with MultiROM exclusions, if that fails go back to the old method and remove
             // 'restorecon_recursive' from init.rc scripts
-            if((strcmp(dt->d_name, "file_contexts") == 0) || (strcmp(dt->d_name, "file_contexts.bin") == 0))
-            {
+            //
+            // Android 8.0 is using text format contexts again, but now has two separate files
+            // 'nonplat_file_contexts' and 'plat_file_contexts', we need to patch the latter
+            // https://source.android.com/security/selinux/images/SELinux_Treble.pdf
+            if( (strcmp(dt->d_name, "file_contexts") == 0)
+                || (strcmp(dt->d_name, "file_contexts.bin") == 0)
+                || (strcmp(dt->d_name, "plat_file_contexts") == 0)
+              ) {
                 FILE *f;
                 uint32_t magic = 0;
                 int res = 1;
@@ -718,8 +729,8 @@ void rom_quirks_on_initrd_finalized(void)
                         res = inject_file_contexts(buff);
                 }
 
-                if(res != 0)
-                    disable_restorecon_recursive();
+                if(res == 0)
+                    file_contexts_injected = 1;
             }
 
             // franco.Kernel includes script init.fk.sh which remounts /system as read only
@@ -732,4 +743,7 @@ void rom_quirks_on_initrd_finalized(void)
         }
         closedir(d);
     }
+
+    if (!file_contexts_injected)
+        disable_restorecon_recursive();
 }
