@@ -23,6 +23,8 @@ else
     chown media_rw:media_rw "$base/.nomedia"
 fi
 
+rm -rf "$base/enc"
+
 rm "$base/boot.img-ubuntu"*
 rm "$base/infos/"*
 rm "$base/res/"*
