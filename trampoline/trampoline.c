@@ -73,6 +73,7 @@ static int find_multirom(void)
             // Make sure to set the container dir to immutable
             char main_path[64];
             strncpy(main_path, path_multirom, strlen(path_multirom) - (sizeof("/multirom") - 1));
+            main_path[strlen(path_multirom) - (sizeof("/multirom") - 1)] = '\0';
 
             int fd = open(main_path, O_RDONLY | O_NONBLOCK);
             if (fd >= 0) {
