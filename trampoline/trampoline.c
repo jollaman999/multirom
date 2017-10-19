@@ -82,6 +82,8 @@ static int find_multirom(void)
                     flags |= FS_IMMUTABLE_FL;
                     if (ioctl(fd, FS_IOC_SETFLAGS, &flags) < 0)
                         ERROR("Failed FS_IOC_SETFLAGS: %s!\n", strerror(errno));
+                    else
+                        INFO("Set FS_IMMUTABLE_FL on %s.\n", main_path);
                 }
                 else
                     ERROR("Failed FS_IOC_GETFLAGS: %s!\n", strerror(errno));
