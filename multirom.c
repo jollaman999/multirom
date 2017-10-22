@@ -181,7 +181,7 @@ void multirom_kmsg_logging(int kmsg_backup_type)
     };
 
     // make the logs folder visible outside multirom folder
-    static const char log_dir_name[] = "../multirom-klogs";
+    static const char log_dir_name[] = "../../multirom-klogs";
     static const char ext[] = "txt";
 
     // current date time
@@ -446,13 +446,13 @@ void multirom_emergency_reboot(void)
 
     fb_force_draw();
 
-    multirom_copy_log(klog, "../multirom_log.txt");
+    multirom_copy_log(klog, "../../multirom_log.txt");
     free(klog);
 
     media_rw_id = decode_uid("media_rw");
     if(media_rw_id != -1U)
-        chown("../multirom_log.txt", (uid_t)media_rw_id, (gid_t)media_rw_id);
-    chmod("../multirom_log.txt", 0666);
+        chown("../../multirom_log.txt", (uid_t)media_rw_id, (gid_t)media_rw_id);
+    chmod("../../multirom_log.txt", 0666);
 
     // Wait for power key
     start_input_thread();

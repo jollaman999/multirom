@@ -710,7 +710,7 @@ void multirom_ui_tab_misc_copy_log(UNUSED void *data)
 {
     multirom_dump_status(mrom_status);
 
-    int res = multirom_copy_log(NULL, "../multirom_log.txt");
+    int res = multirom_copy_log(NULL, "../../multirom_log.txt");
 
     static const char *text[] = { "Failed to copy log to sdcard!", "Error log was saved to:\n\n<s>/sdcard/multirom_log.txt</s>" };
 
