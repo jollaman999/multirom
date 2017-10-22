@@ -50,10 +50,10 @@ const char *multirom_exclusion_path[] = {
     "/data/media/0/multirom",
     "/realdata/media/multirom",
     "/realdata/media/0/multirom",
-    "/data/media/MultiROM",
-    "/data/media/0/MultiROM",
-    "/realdata/media/MultiROM",
-    "/realdata/media/0/MultiROM",
+    "/data/media/MultiROM/multirom",
+    "/data/media/0/MultiROM/multirom",
+    "/realdata/media/MultiROM/multirom",
+    "/realdata/media/0/MultiROM/multirom",
     "/mnt/mrom",
 };
 

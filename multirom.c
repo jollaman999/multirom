@@ -2376,7 +2376,7 @@ fail:
     return -1;
 }
 
-// - %m - ROMs folder (eg. /sdcard/multirom/roms/*rom_name*)
+// - %m - ROMs folder (eg. /sdcard/MultiROM/multirom/roms/*rom_name*)
 int multirom_replace_aliases_root_path(char **s, struct multirom_rom *rom)
 {
     char *alias = strstr(*s, "%m");

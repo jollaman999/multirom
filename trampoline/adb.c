@@ -183,7 +183,7 @@ int adb_init_busybox(void)
 void adb_init_fs(void)
 {
     mkdir("/sdcard", 0777);
-    if(strstr(adbd_path, "/realdata/media/0/multirom"))
+    if(strstr(adbd_path, "/realdata/media/0/MultiROM/multirom"))
         mount("/realdata/media/0/", "/sdcard/", "auto", MS_BIND, "");
     else
         mount("/realdata/media/", "/sdcard/", "auto", MS_BIND, "");
