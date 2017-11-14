@@ -15,6 +15,7 @@
  * along with MultiROM.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <assert.h>
@@ -22,6 +23,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "lib/framebuffer.h"
 #include "lib/input.h"
@@ -716,6 +718,11 @@ void multirom_ui_tab_misc_copy_log(UNUSED void *data)
     multirom_dump_status(mrom_status);
 
     int res = multirom_copy_log(NULL, "../../multirom_log.txt");
+    unsigned int media_rw_id = decode_uid("media_rw");
+
+    if(media_rw_id != -1U)
+        chown("../multirom_log.txt", (uid_t)media_rw_id, (gid_t)media_rw_id);
+    chmod("../multirom_log.txt", 0666);
 
     static const char *text[] = { "Failed to copy log to sdcard!", "Error log was saved to:\n\n<s>/sdcard/multirom_log.txt</s>" };
 
