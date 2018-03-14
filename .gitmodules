@@ -3,7 +3,7 @@
 	url = https://github.com/Tasssadar/kexec-tools
 [submodule "adbd"]
 	path = adbd
-	url = https://github.com/jollaman999/multirom_adbd
+	url = https://github.com/jollaman999/adbd
 [submodule "kexec-tools-arm64"]
 	path = kexec-tools-arm64
 	url = https://github.com/jollaman999/kexec-tools-arm64
