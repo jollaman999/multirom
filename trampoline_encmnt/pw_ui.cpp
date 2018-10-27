@@ -23,6 +23,7 @@
 
 #include "pw_ui.h"
 #include "encmnt_defines.h"
+extern "C" {
 #include "../lib/framebuffer.h"
 #include "../lib/colors.h"
 #include "../lib/log.h"
@@ -34,6 +35,7 @@
 #include "../lib/workers.h"
 #include "../lib/containers.h"
 #include "../rom_quirks.h"
+}
 
 #include "cryptfs.h"
 
@@ -204,14 +206,14 @@ static void boot_reboot_to_recovery(UNUSED void *data)
 
 static void fade_rect_alpha_step(void *data, float interpolated)
 {
-    fb_rect *r = data;
+    fb_rect *r = (fb_rect*)data;
     r->color = (((int)(0xFF*interpolated)) << 24);
     fb_request_draw();
 }
 
 static void reveal_rect_alpha_step(void *data, float interpolated)
 {
-    fb_rect *r = data;
+    fb_rect *r = (fb_rect*)data;
     interpolated = 1.f - interpolated;
     r->color = (r->color & ~(0xFF << 24)) | (((int)(0xFF*interpolated)) << 24);
     fb_request_draw();
@@ -253,7 +255,7 @@ static int try_password(char *pass)
 
 static void type_pass_key_pressed(void *data, uint8_t code)
 {
-    struct pwui_type_pass_data *d = data;
+    struct pwui_type_pass_data *d = (pwui_type_pass_data*)data;
 
     if(code < 128)
     {
@@ -261,8 +263,8 @@ static void type_pass_key_pressed(void *data, uint8_t code)
         while(d->pass_buf_cap < pass_len + 2)
         {
             d->pass_buf_cap *= 2;
-            d->pass_buf = realloc(d->pass_buf, d->pass_buf_cap);
-            d->pass_buf_stars = realloc(d->pass_buf_stars, d->pass_buf_cap);
+            d->pass_buf = (char*)realloc(d->pass_buf, d->pass_buf_cap);
+            d->pass_buf_stars = (char*)realloc(d->pass_buf_stars, d->pass_buf_cap);
         }
 
         if(pass_len > 0)
@@ -310,7 +312,7 @@ static void type_pass_key_pressed(void *data, uint8_t code)
 
 static void type_pass_init(int pwtype)
 {
-    struct pwui_type_pass_data *d = mzalloc(sizeof(struct pwui_type_pass_data));
+    struct pwui_type_pass_data *d = (pwui_type_pass_data*)mzalloc(sizeof(struct pwui_type_pass_data));
     d->keyboard = keyboard_create(pwtype == CRYPT_TYPE_PIN ? KEYBOARD_PIN : KEYBOARD_NORMAL,
             0, fb_height*0.65, fb_width, fb_height*0.35);
     keyboard_set_callback(d->keyboard, type_pass_key_pressed, d);
@@ -319,15 +321,15 @@ static void type_pass_init(int pwtype)
     center_text(d->passwd_text, 0, 0, fb_width, fb_height);
 
     d->pass_buf_cap = 12;
-    d->pass_buf = mzalloc(d->pass_buf_cap);
-    d->pass_buf_stars = mzalloc(d->pass_buf_cap);
+    d->pass_buf = (char*)mzalloc(d->pass_buf_cap);
+    d->pass_buf_stars = (char*)mzalloc(d->pass_buf_cap);
 
     pwui_type_data = d;
 }
 
 static void type_pass_destroy(void)
 {
-    struct pwui_type_pass_data *d = pwui_type_data;
+    struct pwui_type_pass_data *d = (pwui_type_pass_data*)pwui_type_data;
 
     keyboard_destroy(d->keyboard);
     free(d->pass_buf);
@@ -375,7 +377,7 @@ static inline void type_pattern_connect_dot(struct pwui_type_pattern_data *d,  i
 
 static int type_pattern_touch_handler(touch_event *ev, void *data)
 {
-    struct pwui_type_pattern_data *d = data;
+    struct pwui_type_pattern_data *d = (pwui_type_pattern_data*)data;
 
     if(d->touch_id == -1 && (ev->changed & TCHNG_ADDED) && !ev->consumed)
     {
@@ -444,7 +446,7 @@ static int type_pattern_touch_handler(touch_event *ev, void *data)
         d->cur_line = NULL;
         fb_request_draw();
 
-        char *passwd = malloc(d->connected_dots_len+1);
+        char *passwd = (char*)malloc(d->connected_dots_len+1);
         size_t i;
         for(i = 0; i < d->connected_dots_len; ++i)
             passwd[i] = '1' + d->connected_dots[i];
@@ -452,8 +454,8 @@ static int type_pattern_touch_handler(touch_event *ev, void *data)
 
         if(try_password(passwd) < 0)
         {
-            list_clear(&d->active_dots, fb_remove_item);
-            list_clear(&d->complete_lines, fb_remove_item);
+            list_clear(&d->active_dots, (callback)fb_remove_item);
+            list_clear(&d->complete_lines, (callback)fb_remove_item);
             fb_request_draw();
         }
 
@@ -499,7 +501,7 @@ static void type_pattern_buttons_init(void)
 {
     int step;
 
-    pattern_size3_btn = mzalloc(sizeof(button));
+    pattern_size3_btn = (button*)mzalloc(sizeof(button));
     pattern_size3_btn->w = fb_width*0.12;
     pattern_size3_btn->h = HEADER_HEIGHT*0.7;
     pattern_size3_btn->x = fb_width*0.13;
@@ -511,7 +513,7 @@ static void type_pattern_buttons_init(void)
     step = (fb_width - (pattern_size3_btn->x*2) - pattern_size3_btn->w*4)
            / 3 + pattern_size3_btn->w;
 
-    pattern_size4_btn = mzalloc(sizeof(button));
+    pattern_size4_btn = (button*)mzalloc(sizeof(button));
     pattern_size4_btn->w = pattern_size3_btn->w;
     pattern_size4_btn->h = pattern_size3_btn->h;
     pattern_size4_btn->x = pattern_size3_btn->x + step;
@@ -520,7 +522,7 @@ static void type_pattern_buttons_init(void)
     pattern_size4_btn->clicked = &type_pattern_size4_clicked;
     button_init_ui(pattern_size4_btn, "4x4", SIZE_SMALL);
 
-    pattern_size5_btn = mzalloc(sizeof(button));
+    pattern_size5_btn = (button*)mzalloc(sizeof(button));
     pattern_size5_btn->w = pattern_size3_btn->w;
     pattern_size5_btn->h = pattern_size3_btn->h;
     pattern_size5_btn->x = pattern_size3_btn->x + step*2;
@@ -529,7 +531,7 @@ static void type_pattern_buttons_init(void)
     pattern_size5_btn->clicked = &type_pattern_size5_clicked;
     button_init_ui(pattern_size5_btn, "5x5", SIZE_SMALL);
 
-    pattern_size6_btn = mzalloc(sizeof(button));
+    pattern_size6_btn = (button*)mzalloc(sizeof(button));
     pattern_size6_btn->w = pattern_size3_btn->w;
     pattern_size6_btn->h = pattern_size3_btn->h;
     pattern_size6_btn->x = pattern_size3_btn->x + step*3;
@@ -575,7 +577,7 @@ static void type_pattern_init(size_t size)
 
     pattern_size = size;
 
-    d = mzalloc(sizeof(struct pwui_type_pattern_data));
+    d = (pwui_type_pattern_data*)mzalloc(sizeof(struct pwui_type_pattern_data));
     step = (fb_width - (start_x*2) - PWUI_DOT_R*pattern_size) / (pattern_size-1) + PWUI_DOT_R;
     x = start_x;
     y = fb_height/2 - fb_width/4;
@@ -607,11 +609,11 @@ static void type_pattern_init(size_t size)
 
 static void type_pattern_destroy(void)
 {
-    struct pwui_type_pattern_data *d = pwui_type_data;
+    struct pwui_type_pattern_data *d = (pwui_type_pattern_data*)pwui_type_data;
     rm_touch_handler(type_pattern_touch_handler, d);
-    list_clear(&d->dots, fb_remove_item);
-    list_clear(&d->active_dots, fb_remove_item);
-    list_clear(&d->complete_lines, fb_remove_item);
+    list_clear(&d->dots, (callback)fb_remove_item);
+    list_clear(&d->active_dots, (callback)fb_remove_item);
+    list_clear(&d->complete_lines, (callback)fb_remove_item);
     fb_rm_line(d->cur_line);
     free(d);
 
@@ -653,7 +655,7 @@ static void init_ui(int pwtype)
             break;
     }
 
-    boot_primary_btn = mzalloc(sizeof(button));
+    boot_primary_btn = (button*)mzalloc(sizeof(button));
     boot_primary_btn->w = fb_width*0.30;
     boot_primary_btn->h = HEADER_HEIGHT;
     boot_primary_btn->x = fb_width - boot_primary_btn->w;
@@ -691,7 +693,7 @@ static void destroy_ui(int pwtype)
 
 static int pw_ui_shutdown_counter_touch_handler(UNUSED touch_event *ev, void *data)
 {
-    int *shutdown_counter = data;
+    int *shutdown_counter = (int*)data;
     if(*shutdown_counter == 0)
         return -1;
 

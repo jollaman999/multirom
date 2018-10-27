@@ -23,8 +23,8 @@ endif
 
 LOCAL_SRC_FILES := \
     cryptfs.c \
-    encmnt.c \
-    pw_ui.c \
+    encmnt.cpp \
+    pw_ui.cpp \
     ../rom_quirks.c \
     ../rq_inject_file_contexts.c \
 
@@ -41,6 +41,18 @@ ifeq ($(MR_ENCRYPTION_FAKE_PROPERTIES),true)
     LOCAL_C_INCLUDES += $(multirom_local_path)
 
     LOCAL_SRC_FILES := fake_properties.c
+
+    include $(multirom_local_path)/device_defines.mk
+
+    include $(BUILD_SHARED_LIBRARY)
+
+    include $(CLEAR_VARS)
+
+    LOCAL_MODULE := libmultirom_fake_propertywait
+    LOCAL_MODULE_TAGS := optional
+    LOCAL_C_INCLUDES += $(multirom_local_path)
+
+    LOCAL_SRC_FILES := property_wait.cpp
 
     include $(multirom_local_path)/device_defines.mk
 

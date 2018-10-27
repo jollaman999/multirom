@@ -18,6 +18,7 @@ ifeq ($(MR_ENCRYPTION),true)
 
 	ifeq ($(MR_ENCRYPTION_FAKE_PROPERTIES),true)
 		multirom_extra_dep += libmultirom_fake_properties
+		multirom_extra_dep += libmultirom_fake_propertywait
 	else
 		MR_ENCRYPTION_FAKE_PROPERTIES := false
 	endif
@@ -67,6 +68,7 @@ $(MULTIROM_ZIP_TARGET): multirom trampoline bbootimg mrom_kexec_static mrom_adbd
 		cp -a $(TARGET_OUT_SHARED_LIBRARIES)/libc++.so $(MULTIROM_INST_DIR)/multirom/enc/; \
 		if $(MR_ENCRYPTION_FAKE_PROPERTIES); then \
 			cp -a $(TARGET_OUT_SHARED_LIBRARIES)/libmultirom_fake_properties.so $(MULTIROM_INST_DIR)/multirom/enc/; \
+			cp -a $(TARGET_OUT_SHARED_LIBRARIES)/libmultirom_fake_propertywait.so $(MULTIROM_INST_DIR)/multirom/enc/; \
 		fi; \
 		if [ -n "$(MR_ENCRYPTION_SETUP_SCRIPT)" ]; then sh "$(ANDROID_BUILD_TOP)/$(MR_ENCRYPTION_SETUP_SCRIPT)" "$(ANDROID_BUILD_TOP)" "$(MULTIROM_INST_DIR)/multirom/enc"; fi; \
 	fi

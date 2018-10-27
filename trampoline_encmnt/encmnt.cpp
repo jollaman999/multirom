@@ -22,10 +22,12 @@
 #include <dirent.h>
 #include <errno.h>
 
+extern "C" {
 #include "../lib/log.h"
 #include "../lib/fstab.h"
 #include "../lib/framebuffer.h"
 #include "../lib/util.h"
+}
 
 #include "cryptfs.h"
 
@@ -114,7 +116,7 @@ static int handle_decrypt(int stdout_fd, char *password)
         return -1;
     }
     else if (pwtype == CRYPT_TYPE_DEFAULT)
-        password = default_password;
+        password = (char*)default_password;
 
     if(password)
     {
@@ -147,6 +149,7 @@ static int handle_decrypt(int stdout_fd, char *password)
         }
     }
 
+    INFO("open block device\n");
     d = opendir("/dev/block/");
     if(!d)
     {
@@ -154,19 +157,33 @@ static int handle_decrypt(int stdout_fd, char *password)
         return -1;
     }
 
+    INFO("finding block device\n");
+    if (access("/dev/block/dm-0", R_OK)) {
+        INFO("/dev/block/dm-0 nhi hai\n");
+    } else {
+        INFO("/dev/block/dm-0 hai\n");
+    }
     // find the block device
     while((de = readdir(d)))
     {
-        if(de->d_type == DT_BLK && strncmp(de->d_name, "dm-", 3) == 0)
+        INFO("finding block device %d %s\n", de->d_type, de->d_name);
+        if(de->d_type == DT_BLK && !strncmp(de->d_name, "dm-", 3))
         {
             snprintf(buff, sizeof(buff), "/dev/block/%s\n", de->d_name);
             INFO("Found block device %s\n", buff);
+            char temp[512];
+            read(stdout_fd, temp, 512);
+                INFO("ye tha stdout me %s\n", temp);
             write(stdout_fd, buff, strlen(buff));
             fsync(stdout_fd);
             res = 0;
             break;
         }
     }
+    /*snprintf(buff, sizeof(buff), "/dev/block/dm-0\n");
+    write(stdout_fd, buff, strlen(buff));
+    fsync(stdout_fd);
+    res = 0;*/
 
     closedir(d);
     return res;
@@ -248,9 +265,10 @@ int main(int argc, char *argv[])
     INFO("Setting encrypted partition data to %s %s %s\n", p->device, footer_location, p->type);
     set_partition_data(p->device, footer_location, p->type);
 
-    // cryptfs prints informations, we don't want that
+    //cryptfs prints informations, we don't want that
     stdout_fd = dup(1);
     freopen("/dev/null", "ae", stdout);
+    freopen("/dev/null", "ae", stderr);
 
     switch(cmd)
     {
