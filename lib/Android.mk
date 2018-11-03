@@ -56,6 +56,14 @@ endif
 endif
 
 
+ifeq ($(MR_DEVICE_HAS_DRM_GRAPHICS),true)
+    common_C_FLAGS += -DMR_DEVICE_HAS_DRM_GRAPHICS
+    common_C_INCLUDES +=  \
+		external/libdrm \
+		external/libdrm/include/drm
+    common_SRC_FILES += \
+        drm.c
+endif
 
 include $(CLEAR_VARS)
 
@@ -65,6 +73,9 @@ LOCAL_MODULE_PATH := $(TARGET_ROOT_OUT)
 LOCAL_UNSTRIPPED_PATH := $(TARGET_ROOT_OUT_UNSTRIPPED)
 LOCAL_CFLAGS += $(common_C_FLAGS)
 LOCAL_C_INCLUDES += $(common_C_INCLUDES)
+ifeq ($(MR_DEVICE_HAS_DRM_GRAPHICS),true)
+LOCAL_WHOLE_STATIC_LIBRARIES := libdrm_platform
+endif
 LOCAL_SRC_FILES := $(common_SRC_FILES)
 
 include $(multirom_local_path)/device_defines.mk
@@ -79,6 +90,9 @@ LOCAL_MODULE := libmultirom
 LOCAL_MODULE_TAGS := optional
 LOCAL_SHARED_LIBRARIES := libcutils libc libm libpng libz libft2
 LOCAL_STATIC_LIBRARIES := libbootimg
+ifeq ($(MR_DEVICE_HAS_DRM_GRAPHICS),true)
+LOCAL_WHOLE_STATIC_LIBRARIES := libdrm_platform
+endif
 LOCAL_CFLAGS += $(common_C_FLAGS)
 LOCAL_SRC_FILES := $(common_SRC_FILES)
 LOCAL_C_INCLUDES += $(common_C_INCLUDES)
