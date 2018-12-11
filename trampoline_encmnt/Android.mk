@@ -21,6 +21,8 @@ ifeq ($(TARGET_HW_DISK_ENCRYPTION),true)
     LOCAL_CFLAGS += -DCONFIG_HW_DISK_ENCRYPTION
 endif
 
+LOCAL_C_INCLUDES += system/extras/libbootimg/include
+
 LOCAL_SRC_FILES := \
     cryptfs.c \
     encmnt.cpp \
