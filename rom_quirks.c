@@ -210,7 +210,7 @@ void rom_quirks_on_initrd_finalized(void)
 char* convert_to_raw(char* str) {
     char* temp = malloc(strlen(str));
     char* temp2 = temp;
-    char* out = calloc(1, strlen(str));
+    char* out = calloc(1, strlen(str) + 2);
     int i = 0, j = 0;
 
     while (str[j] != '\n') {
@@ -231,6 +231,7 @@ char* convert_to_raw(char* str) {
             i += strlen(token);
         }
     } else {
+        strcat(temp, "00");
         strcpy(out, temp);
     }
     free(temp2);
@@ -250,13 +251,13 @@ void rom_quirks_change_patch_and_osver() {
     {
         return;
     }
-    libbootimg_destroy(&primary_img);
 
     char* primary_os_version = libbootimg_get_osversion(&primary_img.hdr, false);
     char* primary_os_level = libbootimg_get_oslevel(&primary_img.hdr, false);
 
     char* primary_os_ver_raw = libbootimg_get_osversion(&primary_img.hdr, true);
     char* primary_os_level_raw = libbootimg_get_oslevel(&primary_img.hdr, true);
+    libbootimg_destroy(&primary_img);
 
     sourcefile = open(path, O_RDONLY, 0644);
 
@@ -322,6 +323,8 @@ void rom_quirks_change_patch_and_osver() {
     free(existing_level_raw);
     free(existing_ver_raw);
     free(patchstring);
-    free(stringtoappend);
+    if (stringtoappend) {
+        free(stringtoappend);
+    }
     free(filebuf);
 }
