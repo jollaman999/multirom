@@ -13,19 +13,19 @@ XDA threads:
 ###Sources
 MultiROM uses git submodules, so you need to clone them as well:
 
-    git clone https://github.com/Tasssadar/multirom.git system/extras/multirom
+    git clone https://github.com/jollaman999/multirom.git system/extras/multirom
     cd system/extras/multirom
     git submodule update --init
 
 It also needs libbootimg:
 
-    git clone https://github.com/Tasssadar/libbootimg.git system/extras/libbootimg
+    git clone https://github.com/jollaman999/libbootimg.git system/extras/libbootimg
 
 ###Build
 Clone repo to folder `system/extras/multirom` inside Android 4.x source tree.
 You can find device folders on my github, I currently use OmniROM tree for
 building (means branch android-4.4-mrom in device repos).
-MultiROM also needs libbootimg (https://github.com/Tasssadar/libbootimg)
+MultiROM also needs libbootimg (https://github.com/jollaman999/libbootimg)
 in folder `system/extras/libbootimg`. Use something like this to build:
 
     . build/envsetup.sh
