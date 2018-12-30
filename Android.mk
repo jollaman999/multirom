@@ -41,7 +41,7 @@ LOCAL_STATIC_LIBRARIES := libcutils libc libmultirom_static
 LOCAL_WHOLE_STATIC_LIBRARIES := libm libcutils libpng libz libft2_mrom_static
 
 ifeq ($(MR_FIRMWARE_DIR),)
-    LOCAL_CFLAGS += -DMR_FIRMWARE_DIR="/firmware"
+    LOCAL_CFLAGS += -DMR_FIRMWARE_DIR="\"/firmware\""
 else
     LOCAL_CFLAGS += -DMR_FIRMWARE_DIR="\"$(MR_FIRMWARE_DIR)\""
 endif

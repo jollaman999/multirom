@@ -27,6 +27,8 @@
 #include <errno.h>
 #include <sys/mount.h>
 #include <sys/klog.h>
+#include <sys/vfs.h>
+#include <sys/statvfs.h>
 #include <linux/loop.h>
 #include <ctype.h>
 #include <unistd.h>
@@ -2689,7 +2691,7 @@ fail:
     return -1;
 }
 
-// - %m - ROMs folder (eg. /sdcard/multirom/roms/*rom_name*)
+// - %m - ROMs folder (eg. /sdcard/MultiROM/multirom/roms/*rom_name*)
 int multirom_replace_aliases_root_path(char **s, struct multirom_rom *rom)
 {
     char *alias = strstr(*s, "%m");
